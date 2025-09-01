@@ -443,56 +443,63 @@ namespace DSPRE {
 
             return internalNames;
         }
-public void SaveAllMapScreenshots(
-    int width, int height, float ang, float dist, float elev, float perspective,
-    string outputDir = "MapScreenshots")
-{
-    // 1) Fix ambiguous Directory: fully-qualify System.IO
-    System.IO.Directory.CreateDirectory(outputDir);
+  // Delegate for your renderer that draws into the current GL/backbuffer
+    public delegate void RenderMapFn(ref MapFile mapFile, int width, int height,
+                                     float ang, float dist, float elev, float perspective);
 
-    int mapCount = RomInfo.GetHeaderCount();
-    var headerNames = getHeaderListBoxNames(); // UI list; index-aligned with headers
-
-    for (ushort i = 0; i < mapCount; i++)
+    public static void SaveAllMapScreenshots(
+        int width, int height,
+        float ang, float dist, float elev, float perspective,
+        Func<Bitmap> getMapBitmap,               // e.g. this.GetMapBitmap
+        RenderMapFn renderMap,                   // e.g. (ref mf, w,h,a,d,e,p) => this.RenderMap(ref mf, w,h,a,d,e,p)
+        string outputDir = "MapScreenshots")
     {
-        try
+        if (getMapBitmap == null) throw new ArgumentNullException(nameof(getMapBitmap));
+        if (renderMap    == null) throw new ArgumentNullException(nameof(renderMap));
+
+        // Fix ambiguous 'Directory'
+        System.IO.Directory.CreateDirectory(outputDir);
+
+        int mapCount = RomInfo.GetHeaderCount();
+        var headerNames = getHeaderListBoxNames(); // keep if available; else remove and use ID fallback
+
+        for (ushort i = 0; i < mapCount; i++)
         {
-            var mapHeader = MapHeader.GetMapHeader(i);
-            if (mapHeader == null) continue;
-
-            var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
-
-            // 2) Do NOT use non-existent MapFile.WidthInTiles/HeightInTiles
-            int pxW = Math.Max(1, width);
-            int pxH = Math.Max(1, height);
-
-            // 3) You were calling the void overload and assigning it to a Bitmap (CS0029).
-            //    First render, then capture the frame into a Bitmap.
-            RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective);
-
-            using (var captured = GetMapBitmap()) // your UI capture helper; returns Bitmap
-            using (var bmp = captured.Clone(
-                new Rectangle(0, 0, captured.Width, captured.Height),
-                captured.PixelFormat)) // clone to decouple from reused backbuffers
+            try
             {
-                // 4) MapHeader.Name doesn’t exist; use the UI list or ID
-                string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
-                                  ? headerNames[i]
-                                  : $"Map_{i:D4}";
+                var mapHeader = MapHeader.GetMapHeader(i);
+                if (mapHeader == null) continue;
 
-                foreach (char c in Path.GetInvalidFileNameChars())
-                    safeName = safeName.Replace(c, '_');
+                var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
 
-                string path = System.IO.Path.Combine(outputDir, safeName + ".png");
-                bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                int pxW = Math.Max(1, width);
+                int pxH = Math.Max(1, height);
+
+                // Render to current backbuffer/context (void)
+                renderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective);
+
+                // Capture -> clone -> save
+                using (var captured = getMapBitmap())
+                using (var bmp = captured.Clone(new Rectangle(0, 0, captured.Width, captured.Height),
+                                                captured.PixelFormat))
+                {
+                    // MapHeader.Name doesn't exist; prefer UI name list, else ID
+                    string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
+                                      ? headerNames[i]
+                                      : $"Map_{i:D4}";
+
+                    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                        safeName = safeName.Replace(c, '_');
+
+                    string path = System.IO.Path.Combine(outputDir, safeName + ".png");
+                    bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to save screenshot for map {i}: {ex.Message}");
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to save screenshot for map {i}: {ex.Message}");
-        }
     }
-}
-
     }
 }
