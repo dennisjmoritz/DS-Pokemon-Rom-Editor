@@ -360,3 +360,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Linux and cross-platform build artifacts
+*.so
+*.dylib
+.vscode/
+launchSettings.json
+
+# BatchExport.Linux specific
+BatchExport.Linux/bin/
+BatchExport.Linux/obj/

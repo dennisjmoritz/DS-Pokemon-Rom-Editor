@@ -6,6 +6,29 @@ Major overhaul of Nomura's DS Pokemon ROM Editor, with lots of new features and 
 ![Screenshot](bDSPRE_1110.png)
 ![Screenshot](cDSPRE_1110.png)
 
+## Platform Support
+
+- **Windows**: Full featured GUI application with 3D rendering and complete ROM editing capabilities
+- **Linux**: Command-line ROM extraction tool (BatchExport.Linux) - see [Linux Support](#linux-support) below
+
+## Linux Support
+
+A Linux-compatible command-line tool is now available for basic ROM extraction functionality:
+
+### Quick Start (Linux)
+```bash
+# Build the Linux tool
+./build-linux.sh
+
+# Extract a ROM
+cd BatchExport.Linux
+dotnet run -- your-rom.nds extracted-output/ --extract-only
+```
+
+For detailed Linux instructions, see [BatchExport.Linux/README.md](BatchExport.Linux/README.md)
+
+**Note**: The Linux version currently supports ROM extraction only. Full PNG rendering and 3D model functionality remains Windows-only.
+
 ## Misc changes to the original DSPRE
 - Significantly shorter load and save times.
 - New, faster Script Editor with syntax highlighting and built-in search features.

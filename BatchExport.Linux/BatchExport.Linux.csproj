@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>DSPRE.BatchExport</RootNamespace>
+    <AssemblyName>DSPRE.BatchExport.Linux</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+  </ItemGroup>
+
+  <!-- Note: Cannot reference DS_Map due to .NET Framework dependency -->
+  <!-- Instead, we'll include minimal copies of needed classes -->
+
+</Project>
