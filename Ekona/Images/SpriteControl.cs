@@ -383,9 +383,10 @@ namespace Ekona.Images
         {
             OpenFileDialog o = new OpenFileDialog();
             o.CheckFileExists = true;
-            o.Filter = "Supported images |*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff;*.gif;*.ico;*.icon|" +
+            o.Filter = "Supported images |*.png;*.apng;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff;*.gif;*.ico;*.icon|" +
                        "BitMaP (*.bmp)|*.bmp|" +
                        "Portable Network Graphic (*.png)|*.png|" +
+                       "Animated PNG (*.apng)|*.apng|" +
                        "JPEG (*.jpg)|*.jpg;*.jpeg|" +
                        "Tagged Image File Format (*.tiff)|*.tiff;*.tif|" +
                        "Graphic Interchange Format (*.gif)|*.gif|" +
@@ -442,7 +443,39 @@ namespace Ekona.Images
         }
         private void Import_File(string path, int banki)
         {
-            Bitmap bitmap = (Bitmap)Image.FromFile(path);
+            Bitmap bitmap = null;
+            
+            // Handle APNG files specially
+            if (Path.GetExtension(path).ToLower() == ".apng")
+            {
+                try
+                {
+                    // Extract first frame from APNG
+                    System.Drawing.Bitmap[] frames = APNG.ExtractAsBitmaps(path);
+                    if (frames.Length > 0)
+                    {
+                        bitmap = frames[0]; // Use first frame
+                        // Dispose other frames to free memory
+                        for (int i = 1; i < frames.Length; i++)
+                            frames[i].Dispose();
+                    }
+                    else
+                    {
+                        MessageBox.Show("No frames found in APNG file: " + path);
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error importing APNG " + path + ": " + ex.Message);
+                    return;
+                }
+            }
+            else
+            {
+                bitmap = (Bitmap)Image.FromFile(path);
+            }
+            
             Console.WriteLine("Importing image {0} to bank {1}", path, banki.ToString());
 
             OAM[] oams = (OAM[])sprite.Banks[banki].oams.Clone();

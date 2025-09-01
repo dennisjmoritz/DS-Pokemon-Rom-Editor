@@ -452,9 +452,10 @@ namespace Ekona.Images
         {
             OpenFileDialog o = new OpenFileDialog();
             o.CheckFileExists = true;
-            o.Filter = "Supported images |*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff;*.gif;*.ico;*.icon|" +
+            o.Filter = "Supported images |*.png;*.apng;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff;*.gif;*.ico;*.icon|" +
                        "BitMaP (*.bmp)|*.bmp|" +
                        "Portable Network Graphic (*.png)|*.png|" +
+                       "Animated PNG (*.apng)|*.apng|" +
                        "JPEG (*.jpg)|*.jpg;*.jpeg|" +
                        "Tagged Image File Format (*.tiff)|*.tiff;*.tif|" +
                        "Graphic Interchange Format (*.gif)|*.gif|" +
@@ -463,7 +464,38 @@ namespace Ekona.Images
             if (o.ShowDialog() != DialogResult.OK)
                 return;
 
-            Bitmap bitmap = (Bitmap)Image.FromFile(o.FileName);
+            Bitmap bitmap = null;
+            
+            // Handle APNG files specially
+            if (Path.GetExtension(o.FileName).ToLower() == ".apng")
+            {
+                try
+                {
+                    // Extract first frame from APNG
+                    System.Drawing.Bitmap[] frames = APNG.ExtractAsBitmaps(o.FileName);
+                    if (frames.Length > 0)
+                    {
+                        bitmap = frames[0]; // Use first frame
+                        // Dispose other frames to free memory
+                        for (int i = 1; i < frames.Length; i++)
+                            frames[i].Dispose();
+                    }
+                    else
+                    {
+                        MessageBox.Show("No frames found in APNG file.");
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error importing APNG: " + ex.Message);
+                    return;
+                }
+            }
+            else
+            {
+                bitmap = (Bitmap)Image.FromFile(o.FileName);
+            }
 
             // Get tiles + palette from the current image
             byte[] tiles = new byte[0];
