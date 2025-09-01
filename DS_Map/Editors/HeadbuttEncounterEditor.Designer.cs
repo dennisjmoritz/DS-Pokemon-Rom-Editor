@@ -165,21 +165,10 @@ namespace DSPRE.Editors {
             this.openGlPictureBox.TabStop = false;
             this.openGlPictureBox.Click += new System.EventHandler(this.openGlPictureBox_Click);
             // 
-            // mapScreenshotButton
-            // 
-            this.mapScreenshotButton.Image = global::DSPRE.Properties.Resources.cameraIcon;
-            this.mapScreenshotButton.Location = new System.Drawing.Point(1036, 574);
-            this.mapScreenshotButton.Name = "mapScreenshotButton";
-            this.mapScreenshotButton.Size = new System.Drawing.Size(41, 40);
-            this.mapScreenshotButton.TabIndex = 39;
-            this.mapScreenshotButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.mapScreenshotButton.UseVisualStyleBackColor = true;
-            this.mapScreenshotButton.Click += new System.EventHandler(this.mapScreenshotButton_Click);
-            // 
             // mapScreenshotAllButton
             // 
             this.mapScreenshotAllButton.Image = global::DSPRE.Properties.Resources.cameraIcon;
-            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1036, 594);
+            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1036, 574);
             this.mapScreenshotAllButton.Name = "mapScreenshotAllButton";
             this.mapScreenshotAllButton.Size = new System.Drawing.Size(41, 40);
             this.mapScreenshotAllButton.TabIndex = 39;
