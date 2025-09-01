@@ -10,7 +10,6 @@ permissions:
 
 env:
   SOLUTION_FILE_PATH: DS_Map.sln
-  BUILD_CONFIGURATION: Release
 
 jobs:
   build:
