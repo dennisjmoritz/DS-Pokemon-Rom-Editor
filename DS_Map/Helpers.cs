@@ -443,43 +443,47 @@ namespace DSPRE {
 
             return internalNames;
         }
-        public static void SaveAllMapScreenshots(
+public void SaveAllMapScreenshots(
     int width, int height, float ang, float dist, float elev, float perspective,
     string outputDir = "MapScreenshots")
 {
-    Directory.CreateDirectory(outputDir);
+    // 1) Fix ambiguous Directory: fully-qualify System.IO
+    System.IO.Directory.CreateDirectory(outputDir);
 
     int mapCount = RomInfo.GetHeaderCount();
-    var headerNames = getHeaderListBoxNames();
+    var headerNames = getHeaderListBoxNames(); // UI list; index-aligned with headers
 
     for (ushort i = 0; i < mapCount; i++)
     {
         try
         {
-            var header = MapHeader.GetMapHeader(i);
-            if (header == null) continue;
+            var mapHeader = MapHeader.GetMapHeader(i);
+            if (mapHeader == null) continue;
 
             var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
 
-            // Prefer explicit size if provided; else derive from map dimensions (replace property names as appropriate).
-            int tilesX = /* header/mapFile tiles width */ Math.Max(1, mapFile.WidthInTiles);   // TODO: use actual prop
-            int tilesY = /* header/mapFile tiles height */ Math.Max(1, mapFile.HeightInTiles); // TODO: use actual prop
-            int pxW = (width  > 0 ? width  : tilesX * 16);
-            int pxH = (height > 0 ? height : tilesY * 16);
+            // 2) Do NOT use non-existent MapFile.WidthInTiles/HeightInTiles
+            int pxW = Math.Max(1, width);
+            int pxH = Math.Max(1, height);
 
-            // If RenderMap requires a valid offscreen context, ensure it's set up before this call.
-            using (Bitmap bmp = RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective))
+            // 3) You were calling the void overload and assigning it to a Bitmap (CS0029).
+            //    First render, then capture the frame into a Bitmap.
+            RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective);
+
+            using (var captured = GetMapBitmap()) // your UI capture helper; returns Bitmap
+            using (var bmp = captured.Clone(
+                new Rectangle(0, 0, captured.Width, captured.Height),
+                captured.PixelFormat)) // clone to decouple from reused backbuffers
             {
-                // Prefer canonical header name if available; otherwise fall back to UI list, then ID.
-                string name =
-                    (!string.IsNullOrWhiteSpace(header?.Name)) ? header.Name :
-                    (headerNames != null && i < headerNames.Count) ? headerNames[i] :
-                    $"Map_{i:D4}";
+                // 4) MapHeader.Name doesn’t exist; use the UI list or ID
+                string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
+                                  ? headerNames[i]
+                                  : $"Map_{i:D4}";
 
                 foreach (char c in Path.GetInvalidFileNameChars())
-                    name = name.Replace(c, '_');
+                    safeName = safeName.Replace(c, '_');
 
-                string path = Path.Combine(outputDir, $"{name}.png");
+                string path = System.IO.Path.Combine(outputDir, safeName + ".png");
                 bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
