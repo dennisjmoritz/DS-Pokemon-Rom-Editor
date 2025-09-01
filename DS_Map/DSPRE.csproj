@@ -342,7 +342,7 @@
     <Compile Include="LibNDSFormats\NSBTA.cs" />
     <Compile Include="LibNDSFormats\NSBTP.cs" />
     <Compile Include="LibNDSFormats\NSBTX\bytearrayinputstream.cs" />
-    <Compile Include="LibNDSFormats\NSBTX\directory.cs" />
+    <Compile Include="LibNDSFormats\NSBTX\Directory.cs" />
     <Compile Include="LibNDSFormats\NSBTX\externalfilesystemsource.cs" />
     <Compile Include="LibNDSFormats\NSBTX\File.cs" />
     <Compile Include="LibNDSFormats\NSBTX\Filepallete.cs" />
