@@ -375,5 +375,36 @@ namespace DSPRE {
 
             return internalNames;
         }
+
+            /// <summary>
+            /// Automatically renders and saves screenshots for all maps using available names or IDs.
+            /// </summary>
+            public static void SaveAllMapScreenshots(int width, int height, float ang, float dist, float elev, float perspective, string outputDir = "MapScreenshots") {
+                Directory.CreateDirectory(outputDir);
+                int mapCount = RomInfo.GetHeaderCount();
+                var headerNames = getHeaderListBoxNames();
+                for (int i = 0; i < mapCount; i++) {
+                    try {
+                        // Load map header and map file
+                        var mapHeader = MapHeader.GetMapHeader(i);
+                        if (mapHeader == null) continue;
+                        var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
+                        // Determine map-specific width and height
+                        int mapWidth = mapFile.mapModel?.models[0]?.Width ?? width;
+                        int mapHeight = mapFile.mapModel?.models[0]?.Height ?? height;
+                        // Render map
+                        RenderMap(ref mapFile, mapWidth, mapHeight, ang, dist, elev, perspective);
+                        Bitmap bmp = GrabMapScreenshot(mapWidth, mapHeight);
+                        // Use name if available, else fallback to ID
+                        string safeName = (headerNames != null && i < headerNames.Count) ? headerNames[i] : $"Map_{i:D4}";
+                        // Remove invalid filename chars
+                        foreach (char c in Path.GetInvalidFileNameChars()) safeName = safeName.Replace(c, '_');
+                        string filename = Path.Combine(outputDir, $"{safeName}.png");
+                        bmp.Save(filename, System.Drawing.Imaging.ImageFormat.Png);
+                    } catch (Exception ex) {
+                        Console.WriteLine($"Failed to save screenshot for map {i}: {ex.Message}");
+                    }
+                }
+            }
     }
 }
