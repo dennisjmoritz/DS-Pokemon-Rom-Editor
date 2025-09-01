@@ -137,7 +137,7 @@
     <Compile Include="Editors\MoveDataEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Editors\MoveDataEditor.designer.cs">
+    <Compile Include="Editors\MoveDataEditor.Designer.cs">
       <DependentUpon>MoveDataEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Editors\SafariZoneEditor.cs">
@@ -167,13 +167,13 @@
     <Compile Include="EventFileImport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EventFileImport.designer.cs">
+    <Compile Include="EventFileImport.Designer.cs">
       <DependentUpon>EventFileImport.cs</DependentUpon>
     </Compile>
     <Compile Include="EvolutionsEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EvolutionsEditor.designer.cs">
+    <Compile Include="EvolutionsEditor.Designer.cs">
       <DependentUpon>EvolutionsEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="ExtensionMethods.cs" />
@@ -187,7 +187,7 @@
     <Compile Include="LearnsetEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LearnsetEditor.designer.cs">
+    <Compile Include="LearnsetEditor.Designer.cs">
       <DependentUpon>LearnsetEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="MessageEnc\EncryptText.cs" />
@@ -200,7 +200,7 @@
     <Compile Include="PersonalDataEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PersonalDataEditor.designer.cs">
+    <Compile Include="PersonalDataEditor.Designer.cs">
       <DependentUpon>PersonalDataEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="PokemonEditor.cs">
