@@ -443,63 +443,50 @@ namespace DSPRE {
 
             return internalNames;
         }
-  // Delegate for your renderer that draws into the current GL/backbuffer
-    public delegate void RenderMapFn(ref MapFile mapFile, int width, int height,
-                                     float ang, float dist, float elev, float perspective);
+  public static void SaveAllMapScreenshots(
+    int width, int height,
+    float ang, float dist, float elev, float perspective,
+    string outputDir = "MapScreenshots")
+{
+    // Avoid 'Directory' ambiguity with NSMBe types
+    System.IO.Directory.CreateDirectory(outputDir);
 
-    public static void SaveAllMapScreenshots(
-        int width, int height,
-        float ang, float dist, float elev, float perspective,
-        Func<Bitmap> getMapBitmap,               // e.g. this.GetMapBitmap
-        RenderMapFn renderMap,                   // e.g. (ref mf, w,h,a,d,e,p) => this.RenderMap(ref mf, w,h,a,d,e,p)
-        string outputDir = "MapScreenshots")
+    int mapCount = RomInfo.GetHeaderCount();
+    var headerNames = getHeaderListBoxNames(); // already available in Helpers
+
+    for (ushort i = 0; i < mapCount; i++)
     {
-        if (getMapBitmap == null) throw new ArgumentNullException(nameof(getMapBitmap));
-        if (renderMap    == null) throw new ArgumentNullException(nameof(renderMap));
-
-        // Fix ambiguous 'Directory'
-        System.IO.Directory.CreateDirectory(outputDir);
-
-        int mapCount = RomInfo.GetHeaderCount();
-        var headerNames = getHeaderListBoxNames(); // keep if available; else remove and use ID fallback
-
-        for (ushort i = 0; i < mapCount; i++)
+        try
         {
-            try
+            var header = MapHeader.GetMapHeader(i);
+            if (header == null) continue;
+
+            var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
+
+            // Render into the current GL backbuffer
+            Helpers.RenderMap(ref mapFile, width, height, ang, dist, elev, perspective, true, true);
+
+            // Capture the frame to a bitmap (uses glReadPixels under the hood)
+            using (var bmp = Helpers.GrabMapScreenshot(width, height))
             {
-                var mapHeader = MapHeader.GetMapHeader(i);
-                if (mapHeader == null) continue;
+                // Prefer UI header names; fallback to numeric id
+                string name = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
+                              ? headerNames[i]
+                              : $"Map_{i:D4}";
 
-                var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
+                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                    name = name.Replace(c, '_');
 
-                int pxW = Math.Max(1, width);
-                int pxH = Math.Max(1, height);
-
-                // Render to current backbuffer/context (void)
-                renderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective);
-
-                // Capture -> clone -> save
-                using (var captured = getMapBitmap())
-                using (var bmp = captured.Clone(new Rectangle(0, 0, captured.Width, captured.Height),
-                                                captured.PixelFormat))
-                {
-                    // MapHeader.Name doesn't exist; prefer UI name list, else ID
-                    string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
-                                      ? headerNames[i]
-                                      : $"Map_{i:D4}";
-
-                    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                        safeName = safeName.Replace(c, '_');
-
-                    string path = System.IO.Path.Combine(outputDir, safeName + ".png");
-                    bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to save screenshot for map {i}: {ex.Message}");
+                string path = System.IO.Path.Combine(outputDir, name + ".png");
+                bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to save screenshot for map {i}: {ex.Message}");
+        }
     }
+}
+
     }
 }

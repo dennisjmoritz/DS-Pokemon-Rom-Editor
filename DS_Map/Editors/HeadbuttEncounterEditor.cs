@@ -495,7 +495,7 @@ namespace DSPRE.Editors {
             float elev = 90f;
             int fallbackWidth = openGlPictureBox.Width;
             int fallbackHeight = openGlPictureBox.Height;
-            Helpers.SaveAllMapScreenshots(1024, 1024, ang, dist, elev, perspective, this.GetMapBitmap, (ref MapFile mf, int w, int h, float a, float d, float e, float p) => this.RenderMap(ref mf, w, h, a, d, e, p), "MapScreenshots");
+            Helpers.SaveAllMapScreenshots(1024, 1024, ang, dist, elev, perspective, "MapScreenshots");
             MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
