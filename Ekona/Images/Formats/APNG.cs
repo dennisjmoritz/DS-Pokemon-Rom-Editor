@@ -30,6 +30,10 @@ using System.IO;
 
 namespace Ekona.Images.Formats
 {
+    /// <summary>
+    /// APNG (Animated PNG) format handler
+    /// Supports creating APNG files from PNG frames and extracting PNG frames from APNG files
+    /// </summary>
     public static class APNG
     {
         // Info from:
