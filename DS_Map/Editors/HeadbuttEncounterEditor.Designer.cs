@@ -36,6 +36,7 @@ namespace DSPRE.Editors {
             this.mapRenderPanel = new System.Windows.Forms.Panel();
             this.openGlPictureBox = new System.Windows.Forms.PictureBox();
             this.mapScreenshotButton = new System.Windows.Forms.Button();
+            this.mapScreenshotAllButton = new System.Windows.Forms.Button();
             this.headbuttFileComboBox = new System.Windows.Forms.ComboBox();
             this.comboBoxMapFile = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -174,6 +175,17 @@ namespace DSPRE.Editors {
             this.mapScreenshotButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.mapScreenshotButton.UseVisualStyleBackColor = true;
             this.mapScreenshotButton.Click += new System.EventHandler(this.mapScreenshotButton_Click);
+            // 
+            // mapScreenshotAllButton
+            // 
+            this.mapScreenshotAllButton.Image = global::DSPRE.Properties.Resources.cameraIcon;
+            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1036, 594);
+            this.mapScreenshotAllButton.Name = "mapScreenshotAllButton";
+            this.mapScreenshotAllButton.Size = new System.Drawing.Size(41, 40);
+            this.mapScreenshotAllButton.TabIndex = 39;
+            this.mapScreenshotAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.mapScreenshotAllButton.UseVisualStyleBackColor = true;
+            this.mapScreenshotAllButton.Click += new System.EventHandler(this.mapScreenshotAllButton_Click);
             // 
             // headbuttFileComboBox
             // 
@@ -404,6 +416,7 @@ namespace DSPRE.Editors {
             this.Controls.Add(this.mapRenderPanel);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.mapScreenshotButton);
+            this.Controls.Add(this.mapScreenshotAllButton);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.buttonImport);
             this.Controls.Add(this.buttonSaveAs);
@@ -444,6 +457,7 @@ namespace DSPRE.Editors {
     private System.Windows.Forms.Panel mapRenderPanel;
     private System.Windows.Forms.PictureBox openGlPictureBox;
     private System.Windows.Forms.Button mapScreenshotButton;
+    private System.Windows.Forms.Button mapScreenshotAllButton;
     private System.Windows.Forms.ComboBox headbuttFileComboBox;
     private System.Windows.Forms.ComboBox comboBoxMapFile;
     private System.Windows.Forms.Label label1;

@@ -37,29 +37,6 @@ namespace DSPRE.Editors {
         private static float dist;
         private static float elev;
 
-        private Button saveAllScreenshotsButton;
-
-        public HeadbuttEncounterEditor() {
-            InitializeComponent();
-            saveAllScreenshotsButton = new Button();
-            saveAllScreenshotsButton.Text = "Save All Map Screenshots";
-            saveAllScreenshotsButton.AutoSize = true;
-            saveAllScreenshotsButton.Click += SaveAllScreenshotsButton_Click;
-            // Add to the control, adjust location as needed
-            saveAllScreenshotsButton.Location = new Point(10, 10); // You may want to adjust this
-            Controls.Add(saveAllScreenshotsButton);
-        }
-        private void SaveAllScreenshotsButton_Click(object sender, EventArgs e) {
-            // Use default 2D camera values and fallback width/height from openGlPictureBox
-            float perspective = 4f;
-            float ang = 0f;
-            float dist = 115.2f;
-            float elev = 90f;
-            int fallbackWidth = openGlPictureBox.Width;
-            int fallbackHeight = openGlPictureBox.Height;
-            Helpers.SaveAllMapScreenshots(fallbackWidth, fallbackHeight, ang, dist, elev, perspective);
-            MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
 
         //TODO: refresh headers list if a header is added
         public void SetupHeadbuttEncounterEditor(bool force = false) {
@@ -510,7 +487,21 @@ namespace DSPRE.Editors {
             MessageBox.Show("Screenshot saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void SetCam2DValues() {
+        private void mapScreenshotAllButton_Click(object sender, EventArgs e) {
+            // Use default 2D camera values and fallback width/height from openGlPictureBox
+            float perspective = 4f;
+            float ang = 0f;
+            float dist = 115.2f;
+            float elev = 90f;
+            int fallbackWidth = openGlPictureBox.Width;
+            int fallbackHeight = openGlPictureBox.Height;
+            Helpers.SaveAllMapScreenshots(fallbackWidth, fallbackHeight, ang, dist, elev, perspective);
+            MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+
+        private void SetCam2DValues()
+        {
             perspective = 4f;
             ang = 0f;
             dist = 115.2f;
