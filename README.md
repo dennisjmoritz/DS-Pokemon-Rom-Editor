@@ -20,7 +20,10 @@ A Linux-compatible command-line tool is now available for basic ROM extraction f
 # Build the Linux tool
 ./build-linux.sh
 
-# Extract a ROM
+# Extract a ROM using the launcher script
+./dspre-linux your-rom.nds extracted-output/ --extract-only
+
+# Or run directly
 cd BatchExport.Linux
 dotnet run -- your-rom.nds extracted-output/ --extract-only
 ```

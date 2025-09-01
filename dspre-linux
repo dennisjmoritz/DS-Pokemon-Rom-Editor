@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# DS Pokemon ROM Editor - Linux Launcher
+# Wrapper script to make the Linux BatchExport tool easier to use
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOL_DIR="$SCRIPT_DIR/BatchExport.Linux"
+TOOL_DLL="$TOOL_DIR/bin/Release/net8.0/DSPRE.BatchExport.Linux.dll"
+
+# Check if tool is built
+if [ ! -f "$TOOL_DLL" ]; then
+    echo "BatchExport.Linux tool not found. Building it now..."
+    if [ -f "$SCRIPT_DIR/build-linux.sh" ]; then
+        "$SCRIPT_DIR/build-linux.sh"
+    else
+        echo "Error: build-linux.sh not found. Please run:"
+        echo "  cd '$TOOL_DIR' && dotnet build --configuration Release"
+        exit 1
+    fi
+fi
+
+# Run the tool
+echo "DS Pokemon ROM Editor - Linux BatchExport"
+echo "Running: dotnet '$TOOL_DLL' $@"
+echo ""
+
+dotnet "$TOOL_DLL" "$@"
