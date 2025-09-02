@@ -443,52 +443,7 @@ namespace DSPRE {
 
             return internalNames;
         }
-  private static string BuildUiMapName(int i)
-{
-    // Same logic your UI uses for selectMapComboBox
-    string path = System.IO.Path.Combine(
-        RomInfo.gameDirs[DirNames.maps].unpackedDir,
-        i.ToString("D4"));
-
-    try
-    {
-        using (var reader = new DSUtils.EasyReader(path))
-        {
-            switch (RomInfo.gameFamily)
-            {
-                case GameFamilies.DP:
-                case GameFamilies.Plat:
-                    reader.BaseStream.Position = 0x10 + reader.ReadUInt32() + reader.ReadUInt32();
-                    break;
-
-                default:
-                    reader.BaseStream.Position = 0x12;
-                    short bgsSize = reader.ReadInt16();
-                    long backupPos = reader.BaseStream.Position;
-
-                    reader.BaseStream.Position = 0;
-                    reader.BaseStream.Position = backupPos + bgsSize + reader.ReadUInt32() + reader.ReadUInt32();
-                    break;
-            }
-
-            reader.BaseStream.Position += 0x14;
-            string nsbmd = NSBUtils.ReadNSBMDname(reader);
-            return $"{i:D3}{MapHeader.nameSeparator}{nsbmd}";
-        }
-    }
-    catch
-    {
-        // Fallback if anything goes wrong
-        return $"Map_{i:D4}";
-    }
-}
-
-private static string SanitizeFileName(string s)
-{
-    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-        s = s.Replace(c, '_');
-    return s;
-}
+  
 
 
 public static void SaveAllMapScreenshotsAuto(
@@ -498,7 +453,9 @@ public static void SaveAllMapScreenshotsAuto(
 {
     System.IO.Directory.CreateDirectory(outputDir);
 
-    int mapCount = RomInfo.GetHeaderCount(); // keep your current count source
+    int mapCount = RomInfo.GetHeaderCount();
+    var names = getHeaderListBoxNames(); // same format as UI: NNN<sep><NSBMDName>
+
     for (ushort i = 0; i < mapCount; i++)
     {
         try
@@ -517,11 +474,14 @@ public static void SaveAllMapScreenshotsAuto(
 
             using (var bmp = Helpers.GrabMapScreenshot(pxW, pxH))
             {
-                // <<< use the exact UI naming >>>
-                string uiName = BuildUiMapName(i);
-                string safeName = SanitizeFileName(uiName);
+                string name = (names != null && i < names.Count && !string.IsNullOrWhiteSpace(names[i]))
+                              ? names[i]
+                              : $"Map_{i:D4}";
 
-                string path = System.IO.Path.Combine(outputDir, safeName + ".png");
+                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                    name = name.Replace(c, '_');
+
+                string path = System.IO.Path.Combine(outputDir, name + ".png");
                 bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
@@ -531,7 +491,6 @@ public static void SaveAllMapScreenshotsAuto(
         }
     }
 }
-
 
     }
 }
