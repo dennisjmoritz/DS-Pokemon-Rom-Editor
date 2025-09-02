@@ -443,16 +443,62 @@ namespace DSPRE {
 
             return internalNames;
         }
-  public static void SaveAllMapScreenshotsAuto(
+  private static string BuildUiMapName(int i)
+{
+    // Same logic your UI uses for selectMapComboBox
+    string path = System.IO.Path.Combine(
+        RomInfo.gameDirs[DirNames.maps].unpackedDir,
+        i.ToString("D4"));
+
+    try
+    {
+        using (var reader = new DSUtils.EasyReader(path))
+        {
+            switch (RomInfo.gameFamily)
+            {
+                case GameFamilies.DP:
+                case GameFamilies.Plat:
+                    reader.BaseStream.Position = 0x10 + reader.ReadUInt32() + reader.ReadUInt32();
+                    break;
+
+                default:
+                    reader.BaseStream.Position = 0x12;
+                    short bgsSize = reader.ReadInt16();
+                    long backupPos = reader.BaseStream.Position;
+
+                    reader.BaseStream.Position = 0;
+                    reader.BaseStream.Position = backupPos + bgsSize + reader.ReadUInt32() + reader.ReadUInt32();
+                    break;
+            }
+
+            reader.BaseStream.Position += 0x14;
+            string nsbmd = NSBUtils.ReadNSBMDname(reader);
+            return $"{i:D3}{MapHeader.nameSeparator}{nsbmd}";
+        }
+    }
+    catch
+    {
+        // Fallback if anything goes wrong
+        return $"Map_{i:D4}";
+    }
+}
+
+private static string SanitizeFileName(string s)
+{
+    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+        s = s.Replace(c, '_');
+    return s;
+}
+
+
+public static void SaveAllMapScreenshotsAuto(
     int tileSizePx,
     float ang, float dist, float elev, float perspective,
     string outputDir = "MapScreenshots")
 {
     System.IO.Directory.CreateDirectory(outputDir);
 
-    int mapCount = RomInfo.GetHeaderCount();
-    var headerNames = getHeaderListBoxNames();
-
+    int mapCount = RomInfo.GetHeaderCount(); // keep your current count source
     for (ushort i = 0; i < mapCount; i++)
     {
         try
@@ -462,24 +508,18 @@ namespace DSPRE {
 
             var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
 
-            // Tile counts come from the collision grid (HGSS/DPPt maps are 32×32)
             int tilesX = mapFile.collisions.GetLength(0);
             int tilesY = mapFile.collisions.GetLength(1);
-            int pxW = Math.Max(1, tilesX * tileSizePx);   // e.g., 32 * 16 = 512
+            int pxW = Math.Max(1, tilesX * tileSizePx);
             int pxH = Math.Max(1, tilesY * tileSizePx);
 
-            // Render to an offscreen buffer at the exact output size
             Helpers.RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective, true, true);
 
-            // Read pixels and save
             using (var bmp = Helpers.GrabMapScreenshot(pxW, pxH))
             {
-                string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
-                                  ? headerNames[i]
-                                  : $"Map_{i:D4}";
-
-                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                    safeName = safeName.Replace(c, '_');
+                // <<< use the exact UI naming >>>
+                string uiName = BuildUiMapName(i);
+                string safeName = SanitizeFileName(uiName);
 
                 string path = System.IO.Path.Combine(outputDir, safeName + ".png");
                 bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
@@ -491,6 +531,7 @@ namespace DSPRE {
         }
     }
 }
+
 
     }
 }
