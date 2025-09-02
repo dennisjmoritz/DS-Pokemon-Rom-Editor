@@ -15,6 +15,7 @@ using ScintillaNET;
 using ScintillaNET.Utils;
 using Tao.Platform.Windows;
 using NSMBe4.DSFileSystem;
+using DSPRE;
 
 namespace DSPRE {
     public static class Helpers
@@ -444,51 +445,6 @@ namespace DSPRE {
             return internalNames;
         }
   
-private static string BuildUiMapNameExact(int i)
-{
-    try
-    {
-        string mapsDir = DSPRE.RomInfo.gameDirs[DSPRE.DirNames.maps].unpackedDir;
-        string path    = System.IO.Path.Combine(mapsDir, i.ToString("D4"));
-
-        using (var reader = new DSPRE.DSUtils.EasyReader(path))
-        {
-            switch (DSPRE.RomInfo.gameFamily)
-            {
-                case DSPRE.GameFamilies.DP:
-                case DSPRE.GameFamilies.Plat:
-                    reader.BaseStream.Position = 0x10 + reader.ReadUInt32() + reader.ReadUInt32();
-                    break;
-
-                default:
-                    reader.BaseStream.Position = 0x12;
-                    short bgsSize = reader.ReadInt16();
-                    long backupPos = reader.BaseStream.Position;
-
-                    // match UI code behavior
-                    reader.BaseStream.Position = 0;
-                    reader.BaseStream.Position = backupPos + bgsSize + reader.ReadUInt32() + reader.ReadUInt32();
-                    break;
-            }
-
-            reader.BaseStream.Position += 0x14;
-            string nsbmd = DSPRE.NSBUtils.ReadNSBMDname(reader);
-            return $"{i:D3}{DSPRE.MapHeader.nameSeparator}{nsbmd}";
-        }
-    }
-    catch
-    {
-        return $"Map_{i:D4}";
-    }
-}
-
-private static string SanitizeFileName(string s)
-{
-    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-        s = s.Replace(c, '_');
-    return s;
-}
-
 
 public static void SaveAllMapScreenshotsAuto(
     int tileSizePx,
@@ -497,16 +453,17 @@ public static void SaveAllMapScreenshotsAuto(
 {
     System.IO.Directory.CreateDirectory(outputDir);
 
-    int mapCount = DSPRE.RomInfo.GetHeaderCount();
+    // Use the same notion of "map count" as the UI
+    int mapCount = RomInfo.GetMapCount();
 
     for (ushort i = 0; i < mapCount; i++)
     {
         try
         {
-            var header  = DSPRE.MapHeader.GetMapHeader(i);
+            var header  = MapHeader.GetMapHeader(i);
             if (header == null) continue;
 
-            var mapFile = new DSPRE.MapFile(i, DSPRE.RomInfo.gameFamily, discardMoveperms: true);
+            var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
 
             int tilesX = mapFile.collisions.GetLength(0);
             int tilesY = mapFile.collisions.GetLength(1);
@@ -517,10 +474,10 @@ public static void SaveAllMapScreenshotsAuto(
 
             using (var bmp = Helpers.GrabMapScreenshot(pxW, pxH))
             {
-                string uiName  = BuildUiMapNameExact(i);     // exact UI-format name
-                string safe    = SanitizeFileName(uiName);
-                string outPath = System.IO.Path.Combine(outputDir, safe + ".png");
-                bmp.Save(outPath, System.Drawing.Imaging.ImageFormat.Png);
+                string uiName = NameUtil.UIMapName(i);          // <-- identical to UI
+                string safe   = NameUtil.SafeFile(uiName);
+                string path   = System.IO.Path.Combine(outputDir, safe + ".png");
+                bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
         catch (Exception ex)
@@ -529,7 +486,6 @@ public static void SaveAllMapScreenshotsAuto(
         }
     }
 }
-
 
     }
 }
