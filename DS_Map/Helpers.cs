@@ -454,7 +454,7 @@ public static void SaveAllMapScreenshotsAuto(
     System.IO.Directory.CreateDirectory(outputDir);
 
     // Use the same notion of "map count" as the UI
-    int mapCount = RomInfo.GetMapCount();
+    int mapCount = RomInfo.GetHeaderCount();
 
     for (ushort i = 0; i < mapCount; i++)
     {
