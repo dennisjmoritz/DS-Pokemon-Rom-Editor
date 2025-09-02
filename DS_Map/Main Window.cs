@@ -4269,6 +4269,7 @@ namespace DSPRE
         }
         private void mapPartsTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
+            SetCam2D();
             if (mapPartsTabControl.SelectedTab == buildingsTabPage)
             {
                 radio2D.Checked = false;
