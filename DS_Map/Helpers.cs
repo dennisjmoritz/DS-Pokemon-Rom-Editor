@@ -449,18 +449,21 @@ namespace DSPRE {
 public static void SaveAllMapScreenshotsAuto(
     int tileSizePx,
     float ang, float dist, float elev, float perspective,
-    string outputDir = "MapScreenshots")
+    string outputDir = "MapScreenshots",
+    Action<int> beforeEach = null // <-- new optional hook
+)
 {
     System.IO.Directory.CreateDirectory(outputDir);
 
-    // Use the same notion of "map count" as the UI
     int mapCount = RomInfo.GetHeaderCount();
-
     for (ushort i = 0; i < mapCount; i++)
     {
         try
         {
-            var header  = MapHeader.GetMapHeader(i);
+            // Let the caller switch UI state (tilesets/bank/etc.) for this map
+            beforeEach?.Invoke(i);
+
+            var header = MapHeader.GetMapHeader(i);
             if (header == null) continue;
 
             var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
@@ -469,35 +472,13 @@ public static void SaveAllMapScreenshotsAuto(
             int tilesY = mapFile.collisions.GetLength(1);
             int pxW = Math.Max(1, tilesX * tileSizePx);
             int pxH = Math.Max(1, tilesY * tileSizePx);
-            // inside the loop, before RenderMap(...)
-            var h = MapHeader.GetMapHeader(i);
 
-            // 1) Get the area data for this map (names may differ in your tree)
-            var area = new AreaData(h.areaDataID, RomInfo.gameFamily); // or AreaData.Get(h.areaDataID)
-
-            // 2) Choose building model bank (interior vs exterior)
-            bool isInterior =
-                (RomInfo.gameFamily == GameFamilies.HGSS) ? (area.areaType == 0x0) : area.isInterior; // adjust field names
-            Renderer.SelectBuildingBank(isInterior ? BuildingBank.Interior : BuildingBank.Exterior);
-
-            // 3) Bind tilesets / texture packs for map & buildings
-            // Map textures (NSBTX for the terrain)
-            MW_LoadModelTextures(mapFile, area.mapTexturePackId);      // <-- use your project’s loader
-
-            // Building models + textures
-            string bldDir = Renderer.GetBuildingModelsDir(isInterior); // or your helper to pick the bank dir
-            foreach (var b in mapFile.buildings)
-            {
-                b.LoadModelData(bldDir);                                // load NSBMD from correct bank
-                MW_LoadModelTextures(b, area.buildingTexturePackId);    // bind building NSBTX
-            }
-
-            // now render with textures enabled
+            // Render with textures enabled
             Helpers.RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective, true, true);
 
             using (var bmp = Helpers.GrabMapScreenshot(pxW, pxH))
             {
-                string uiName = NameUtil.UIMapName(i);          // <-- identical to UI
+                string uiName = NameUtil.UIMapName(i);
                 string safe   = NameUtil.SafeFile(uiName);
                 string path   = System.IO.Path.Combine(outputDir, safe + ".png");
                 bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
@@ -509,6 +490,5 @@ public static void SaveAllMapScreenshotsAuto(
         }
     }
 }
-
     }
 }

@@ -4404,15 +4404,26 @@ namespace DSPRE
 
         private void mapScreenshotAllButton_Click(object sender, EventArgs e)
         {
-            // Use default 2D camera values and fallback width/height from openGlPictureBox
             float perspective = 4f;
             float ang = 0f;
             float dist = 115.2f;
             float elev = 90f;
-            Helpers.SaveAllMapScreenshotsAuto(tileSizePx: 16, ang, dist, elev, perspective, outputDir: "MapScreenshots");
+
+            Helpers.SaveAllMapScreenshotsAuto(
+                tileSizePx: 16,
+                ang, dist, elev, perspective,
+                outputDir: "MapScreenshots",
+                beforeEach: (idx) =>
+                {
+                    // Selecting the map triggers your current UI code that loads the right tilesets/bank
+                    selectMapComboBox.SelectedIndex = idx;
+                    // Make sure any selection-changed handlers finish before we render
+                    this.Update(); // or Application.DoEvents();
+                }
+            );
+
             MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
 
         private void removeLastMapFileButton_Click(object sender, EventArgs e)
         {
