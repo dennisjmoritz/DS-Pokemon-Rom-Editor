@@ -3163,7 +3163,7 @@
             // mapScreenshotAllButton
             // 
             this.mapScreenshotAllButton.Image = global::DSPRE.Properties.Resources.cameraIcon;
-            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1138, 590);
+            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1138, 610);
             this.mapScreenshotAllButton.Name = "mapScreenshotButton";
             this.mapScreenshotAllButton.Size = new System.Drawing.Size(41, 40);
             this.mapScreenshotAllButton.TabIndex = 39;
