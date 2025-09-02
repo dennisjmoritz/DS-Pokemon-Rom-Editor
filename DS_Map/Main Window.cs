@@ -3672,8 +3672,6 @@ namespace DSPRE {
             float ang = 0f;
             float dist = 115.2f;
             float elev = 90f;
-            int fallbackWidth = openGlPictureBox.Width;
-            int fallbackHeight = openGlPictureBox.Height;
             Helpers.SaveAllMapScreenshotsAuto(tileSizePx: 16, ang, dist, elev, perspective, outputDir: "MapScreenshots");
             MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
