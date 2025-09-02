@@ -495,7 +495,7 @@ namespace DSPRE.Editors {
             float elev = 90f;
             int fallbackWidth = openGlPictureBox.Width;
             int fallbackHeight = openGlPictureBox.Height;
-            Helpers.SaveAllMapScreenshots(1024, 1024, ang, dist, elev, perspective, "MapScreenshots");
+            Helpers.SaveAllMapScreenshotsAuto(tileSizePx: 16, ang, dist, elev, perspective, outputDir: "MapScreenshots");
             MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 

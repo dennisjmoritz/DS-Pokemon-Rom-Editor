@@ -203,6 +203,7 @@
             this.exportCurrentMapBinButton = new System.Windows.Forms.Button();
             this.saveMapButton = new System.Windows.Forms.Button();
             this.mapScreenshotButton = new System.Windows.Forms.Button();
+            this.mapScreenshotAllButton = new System.Windows.Forms.Button();
             this.mapRenderPanel = new System.Windows.Forms.Panel();
             this.mapOpenGlControl = new Tao.Platform.Windows.SimpleOpenGlControl();
             this.movPictureBox = new System.Windows.Forms.PictureBox();
@@ -3018,6 +3019,7 @@
             this.mapEditorTabPage.BackColor = System.Drawing.SystemColors.Window;
             this.mapEditorTabPage.Controls.Add(this.tableLayoutPanel3);
             this.mapEditorTabPage.Controls.Add(this.mapScreenshotButton);
+            this.mapEditorTabPage.Controls.Add(this.mapScreenshotAllButton);
             this.mapEditorTabPage.Controls.Add(this.mapRenderPanel);
             this.mapEditorTabPage.Controls.Add(this.label26);
             this.mapEditorTabPage.Controls.Add(this.buildTextureComboBox);
@@ -3157,6 +3159,17 @@
             this.mapScreenshotButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.mapScreenshotButton.UseVisualStyleBackColor = true;
             this.mapScreenshotButton.Click += new System.EventHandler(this.mapScreenshotButton_Click);
+            // 
+            // mapScreenshotAllButton
+            // 
+            this.mapScreenshotAllButton.Image = global::DSPRE.Properties.Resources.cameraIcon;
+            this.mapScreenshotAllButton.Location = new System.Drawing.Point(1138, 569);
+            this.mapScreenshotAllButton.Name = "mapScreenshotButton";
+            this.mapScreenshotAllButton.Size = new System.Drawing.Size(41, 40);
+            this.mapScreenshotAllButton.TabIndex = 39;
+            this.mapScreenshotAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.mapScreenshotAllButton.UseVisualStyleBackColor = true;
+            this.mapScreenshotAllButton.Click += new System.EventHandler(this.mapScreenshotAllButton_Click);
             // 
             // mapRenderPanel
             // 
@@ -11853,7 +11866,9 @@
         private System.Windows.Forms.ListBox conditionalMusicTableListBox;
         private System.Windows.Forms.Button HOWconditionalMusicTableButton;
         private System.Windows.Forms.Label label66;
+        
         private System.Windows.Forms.Button mapScreenshotButton;
+        private System.Windows.Forms.Button mapScreenshotAllButton;
         private System.Windows.Forms.NumericUpDown encounterSSEQAltUpDown;
         private System.Windows.Forms.Label eyeContactMusicLabel;
         private System.Windows.Forms.NumericUpDown encounterSSEQMainUpDown;

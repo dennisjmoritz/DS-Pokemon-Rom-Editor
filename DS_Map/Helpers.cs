@@ -443,16 +443,15 @@ namespace DSPRE {
 
             return internalNames;
         }
-  public static void SaveAllMapScreenshots(
-    int width, int height,
+  public static void SaveAllMapScreenshotsAuto(
+    int tileSizePx,
     float ang, float dist, float elev, float perspective,
     string outputDir = "MapScreenshots")
 {
-    // Avoid 'Directory' ambiguity with NSMBe types
     System.IO.Directory.CreateDirectory(outputDir);
 
     int mapCount = RomInfo.GetHeaderCount();
-    var headerNames = getHeaderListBoxNames(); // already available in Helpers
+    var headerNames = getHeaderListBoxNames();
 
     for (ushort i = 0; i < mapCount; i++)
     {
@@ -463,21 +462,26 @@ namespace DSPRE {
 
             var mapFile = new MapFile(i, RomInfo.gameFamily, discardMoveperms: true);
 
-            // Render into the current GL backbuffer
-            Helpers.RenderMap(ref mapFile, width, height, ang, dist, elev, perspective, true, true);
+            // Tile counts come from the collision grid (HGSS/DPPt maps are 32×32)
+            int tilesX = mapFile.collisions.GetLength(0);
+            int tilesY = mapFile.collisions.GetLength(1);
+            int pxW = Math.Max(1, tilesX * tileSizePx);   // e.g., 32 * 16 = 512
+            int pxH = Math.Max(1, tilesY * tileSizePx);
 
-            // Capture the frame to a bitmap (uses glReadPixels under the hood)
-            using (var bmp = Helpers.GrabMapScreenshot(width, height))
+            // Render to an offscreen buffer at the exact output size
+            Helpers.RenderMap(ref mapFile, pxW, pxH, ang, dist, elev, perspective, true, true);
+
+            // Read pixels and save
+            using (var bmp = Helpers.GrabMapScreenshot(pxW, pxH))
             {
-                // Prefer UI header names; fallback to numeric id
-                string name = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
-                              ? headerNames[i]
-                              : $"Map_{i:D4}";
+                string safeName = (headerNames != null && i < headerNames.Count && !string.IsNullOrWhiteSpace(headerNames[i]))
+                                  ? headerNames[i]
+                                  : $"Map_{i:D4}";
 
                 foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                    name = name.Replace(c, '_');
+                    safeName = safeName.Replace(c, '_');
 
-                string path = System.IO.Path.Combine(outputDir, name + ".png");
+                string path = System.IO.Path.Combine(outputDir, safeName + ".png");
                 bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             }
         }

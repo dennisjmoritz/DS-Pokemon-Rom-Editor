@@ -3665,9 +3665,25 @@ namespace DSPRE {
             newImage.Save(imageSFD.FileName);
             MessageBox.Show("Screenshot saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void removeLastMapFileButton_Click(object sender, EventArgs e) {
+        
+        private void mapScreenshotAllButton_Click(object sender, EventArgs e) {
+            // Use default 2D camera values and fallback width/height from openGlPictureBox
+            float perspective = 4f;
+            float ang = 0f;
+            float dist = 115.2f;
+            float elev = 90f;
+            int fallbackWidth = openGlPictureBox.Width;
+            int fallbackHeight = openGlPictureBox.Height;
+            Helpers.SaveAllMapScreenshotsAuto(tileSizePx: 16, ang, dist, elev, perspective, outputDir: "MapScreenshots");
+            MessageBox.Show("All map screenshots saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+
+        private void removeLastMapFileButton_Click(object sender, EventArgs e)
+        {
             DialogResult d = MessageBox.Show("Are you sure you want to delete the last Map BIN File?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (d.Equals(DialogResult.Yes)) {
+            if (d.Equals(DialogResult.Yes))
+            {
                 /* Delete last map file */
                 File.Delete(RomInfo.gameDirs[DirNames.maps].unpackedDir + "\\" + (selectMapComboBox.Items.Count - 1).ToString("D4"));
 
